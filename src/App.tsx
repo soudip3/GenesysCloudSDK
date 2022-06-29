@@ -1,8 +1,30 @@
-import React from 'react';
+import { 
+  BrowserRouter,
+  Route,
+  //Switch 
+} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { 
+  authenticate
+} from './utils/genesysCloudUtils';
 
 function App() {
+  useEffect(() => {
+    getPlatformClientData();
+  }, []);
+
+  async function getPlatformClientData() {
+    await authenticate()
+    .then((data:any)=>{
+      console.log('AUTH',data)
+    })
+    .catch((err:any)=>{
+      console.log(err)
+    })
+    
+  }
   return (
     <div className="App">
       <header className="App-header">
