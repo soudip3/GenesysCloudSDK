@@ -1,49 +1,85 @@
 import React, { useEffect, useState } from 'react';
 import { 
     getParticipantID,
-    replaceInteraction
+    replaceInteraction,
+    getUserID
   } from '../utils/genesysCloudUtils';
 
 export function Home(){
-        // useEffect(() => {
-        //     getPariticipantData();
-        // }, []);
+    
+    const [userEmailID, setUserEmailID] = useState("")
+    const [interactionID, setInteractionID] = useState("")
+    const [userEmailVisible, setUserEmailVisible] = useState(false)
+    //const [participantID, setParticipantID] = useState("")
+    //const [queueID, setQueueID] = useState("")
+    //const [userID, setUserID] = useState("")
+    const [radioValue, setRadioValue] = useState("")
+    useEffect(() => {
+    }, []);
 
-    let interactionID = ""
     const getInteractionID = (event :any)=>{
-        interactionID = event.target.value;
-        console.log(interactionID)
+        setInteractionID(event.target.value)
+    }
+
+    const getEmailID = (event :any)=>{
+        setUserEmailID(event.target.value)
     }
 
 
     async function getPariticipantData() {
         await getParticipantID(interactionID)
         .then((data:any)=>{
-            console.log(data)
-            replaceInteractionData(data)
+            //setParticipantID(data.participantID)
+            //setQueueID(data.queueID)
+            //console.log(radioValue)
+            replaceInteractionData(data.participantID, data.queueID)
         })
         .catch((err:any)=>{
                 console.log(err)
         });  
       }
     
-    async function replaceInteractionData(data: { participantID: any; queueID: any; }){
-        const participantID = data.participantID
-        const queueID = data.queueID
-        await replaceInteraction(participantID, queueID, interactionID)
-        .then((data:any)=>{
-            console.log(data)
-        })
-        .catch((err:any)=>{
-            console.log(err)
-        })
+    async function replaceInteractionData(participantID:string, queueID:string){
+        //console.log(1)
+        if(radioValue === 'transferSameQueue'){
+            await replaceInteraction(participantID, queueID, interactionID, "")
+            .then((data:any)=>{
+                console.log(data)
+            })
+            .catch((err:any)=>{
+                console.log(err)
+            })
+        }
+        else if(radioValue === 'transferUser'){
+            await getUserID(userEmailID)
+            .then(async (data:any)=>{
+                const userID = data
+                console.log(data)
+                await replaceInteraction(participantID,"",interactionID, userID)
+                .then((data:any)=>{
+                    console.log(data)
+                })
+                .catch((err:any)=>{
+                    console.log(err)
+                })
+            })
+        }
+        
     }
     return(
         <div>
             <h1>Genesys Cloud</h1>
             <p>Interaction Pull Away</p>
             <label htmlFor='interactionID'>Interaction ID: </label>
-            <input type={'text'} id="interactionID" name='interactionID' onChange={getInteractionID}></input><br></br>
+            <input type={'text'} id="interactionID" name='interactionID' onChange={getInteractionID}></input><br></br><br></br>
+            <input type={'radio'} id='transferSameQueue' value='transferSameQueue' name='optionType' onClick={(e) => setUserEmailVisible(false)} onChange={(e) => setRadioValue(e.target.value)}></input>
+            <label htmlFor='transferSameQueue'>Transfer to Same Queue</label><br></br><br></br>
+            <input type={'radio'} id='transferUser' value='transferUser' name='optionType' onClick={() => setUserEmailVisible(true)} onChange={(e) => setRadioValue(e.target.value)}></input>
+            <label htmlFor='transferUser'>Transfer to Agent</label><br></br><br></br>
+            {userEmailVisible ? <div> 
+                <label htmlFor='userEmail'>Agent Email ID: </label>
+                <input type={'text'} id='userEmail' name='userEmail' onChange={getEmailID}></input><br></br><br></br>
+            </div>:null}
             <button onClick={getPariticipantData}>Submit</button>
         </div>
     )

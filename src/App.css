@@ -12,16 +12,7 @@ body{
 .main-contain{
     flex-grow: 1;
 }
-footer{
-    color : #888888;
-    border-top: 1px solid #eeeeee;
-    margin-top: 16px;
-    padding : 16px 0;
-}
-header{
-    margin-top: 16px;
-    margin-bottom: 48px;
-}
+
 h1{
     font-size: 48px;
     margin-bottom: 16px;

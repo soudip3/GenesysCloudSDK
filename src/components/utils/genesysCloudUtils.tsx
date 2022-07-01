@@ -3,6 +3,7 @@ const platformClient = require('purecloud-platform-client-v2/dist/node/purecloud
 const jp = require('jsonpath')
 
 const conversationAPI = new platformClient.ConversationsApi()
+const userAPI = new platformClient.UsersApi()
 const client = platformClient.ApiClient.instance;
 const { clientId, redirectUri } = clientConfig;
 
@@ -41,9 +42,9 @@ export function getParticipantID(interactionID : string){
     })
 }
 
-export function replaceInteraction(participantID:string, queueID:string, conversationID:string){
+export function replaceInteraction(participantID:string, queueID:string, conversationID:string, userID: string){
     let body = {
-        "userId": "",
+        "userId": userID,
         "address": "",
         "userName": "",
         "queueId": queueID,
@@ -51,10 +52,33 @@ export function replaceInteraction(participantID:string, queueID:string, convers
     }
     return conversationAPI.postConversationsMessageParticipantReplace(conversationID, participantID, body)
     .then((data:any) =>{
-
         return "Success"
     })
     .catch((err:any) =>{
         return "Failure"
     })
 }
+
+export function getUserID(userEmailID:string){
+    const body = {
+        "pageSize": 1,
+        "pageNumber": 1,
+        "query": [
+            {
+                
+                "fields": ["email"],
+                "value": userEmailID,
+                "type": "EXACT"
+            }
+        ]
+    }
+    return userAPI.postUsersSearch(body)
+    .then((data:any) =>{
+        return data.results[0].id
+    })
+    .catch((err:any)=>{
+        console.log(err)
+    })
+}
+//82bffa5e-4a5c-4683-9ccb-9619188fae13
+//soudip.halder@genesys.com
