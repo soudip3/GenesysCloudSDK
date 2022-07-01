@@ -83,16 +83,15 @@ export function getUserID(userEmailID:string){
 }
 
 export function getQueueID(queueName:string){
-    const body = { 
-        "pageSize": 100, // Number | Page size [max value is 100]
-        "pageNumber": 1, // Number | Page number [max value is 5]
-        "sortBy": "name", // String | Sort by
-        "sortOrder": "asc", // String | Sort order
-        "name": queueName, // String | Name
-        "id": "", // [String] | Queue ID(s)
-        "divisionId": "" // [String] | Division ID(s)
-    };
-    return routingAPI.getRoutingQueuesDivisionviews(body)
+    let body = { 
+        "pageNumber": 1, // Number | Page number
+        "pageSize": 100, // Number | Page size
+        "sortOrder": "asc", // String | Note: results are sorted by name.
+        "name": queueName, // String | Filter by queue name
+        "id": "", // [String] | Filter by queue ID(s)
+        "divisionId": "" // [String] | Filter by queue division ID(s)
+      };
+    return routingAPI.getRoutingQueues(body)
     .then((data:any)=>{
         return data.entities[0].id
     })
