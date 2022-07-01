@@ -2,7 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { 
     getParticipantID,
     replaceInteraction,
-    getUserID
+    getUserID,
+    getQueueID,
+    getUsersDetails
   } from '../utils/genesysCloudUtils';
 
 export function Home(){
@@ -13,6 +15,7 @@ export function Home(){
     const [queueVisible, setQueueVisible] = useState(false)
     const [userListVisible, setUserListVisible] = useState(false)
     const [taskComplete, setTaskComplete] = useState("")
+    const [queueName, setQueueName] = useState("")
     //const [participantID, setParticipantID] = useState("")
     //const [queueID, setQueueID] = useState("")
     //const [userID, setUserID] = useState("")
@@ -28,6 +31,10 @@ export function Home(){
         setUserEmailID(event.target.value)
     }
 
+    const getQueueName = (event:any)=>{
+        setQueueName(event.target.value)
+    }
+
 
     async function getPariticipantData() {
         await getParticipantID(interactionID)
@@ -41,6 +48,23 @@ export function Home(){
                 console.log(err)
         });  
       }
+    
+    async function getUserList() {
+        await getQueueID(queueName)
+        .then(async (data:any)=>{
+            const queueID = data
+            await getUsersDetails(queueID)
+            .then((data:any)=>{
+                console.log(data)
+            })
+            .catch((err:any)=>{
+                console.log(err)
+            })
+        })
+        .catch((err:any)=>{
+            console.log(err)
+        })
+    }
     
     async function replaceInteractionData(participantID:string, queueID:string){
         //console.log(1)
@@ -96,11 +120,11 @@ export function Home(){
             <label htmlFor='transferUser'>Transfer to Agent</label><br></br><br></br>
             {queueVisible ? <div>
                 <label htmlFor='queueName'>Queue Name: </label>
-                <input type={'text'} id='queueName' name='queueName'></input><br></br><br></br>
+                <input type={'text'} id='queueName' name='queueName' onChange={getQueueName}></input><br></br><br></br>
             </div>:null}
             {userListVisible ? <div>
                 <label htmlFor='userList'>User List: </label>
-                <select>
+                <select onClick={getUserList}>
                     <option>Select</option>
                 </select><br></br><br></br>
             </div>:null}

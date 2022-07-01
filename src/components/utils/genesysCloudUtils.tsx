@@ -4,6 +4,7 @@ const jp = require('jsonpath')
 
 const conversationAPI = new platformClient.ConversationsApi()
 const userAPI = new platformClient.UsersApi()
+const routingAPI = new platformClient.RoutingApi()
 const client = platformClient.ApiClient.instance;
 const { clientId, redirectUri } = clientConfig;
 
@@ -80,5 +81,52 @@ export function getUserID(userEmailID:string){
         console.log(err)
     })
 }
-//82bffa5e-4a5c-4683-9ccb-9619188fae13
-//soudip.halder@genesys.com
+
+export function getQueueID(queueName:string){
+    const body = { 
+        "pageSize": 100, // Number | Page size [max value is 100]
+        "pageNumber": 1, // Number | Page number [max value is 5]
+        "sortBy": "name", // String | Sort by
+        "sortOrder": "asc", // String | Sort order
+        "name": queueName, // String | Name
+        "id": "", // [String] | Queue ID(s)
+        "divisionId": "" // [String] | Division ID(s)
+    };
+    return routingAPI.getRoutingQueuesDivisionviews(body)
+    .then((data:any)=>{
+        return data.entities[0].id
+    })
+    .catch((err:any)=>{
+        return err
+    })
+}
+
+export function getUsersDetails(queueID:string){
+    let body = { 
+        "pageNumber": 1, // Number | 
+        "pageSize": 100, // Number | Max value is 100
+        "sortOrder": "asc", // String | Note: results are sorted by name.
+    };
+    //console.log(body+" "+queueID)
+    return routingAPI.getRoutingQueueMembers(queueID, body)
+    .then((data:any)=>{
+        const totalAgents = data.entities.length;    
+        interface usersDetails {
+            agentName: string;
+            agentID: string;
+          }
+          
+          const obj: usersDetails[] = [];
+          for(let i=0;i<totalAgents;i++){
+            const a1: usersDetails = {
+                agentName: data.entities[i].name,
+                agentID : data.entities[i].id,
+              };
+              obj.push(a1);
+          }
+        return obj
+    })
+    .catch((err:any)=>{
+        return err
+    })
+}
