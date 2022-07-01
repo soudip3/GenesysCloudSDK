@@ -10,6 +10,9 @@ export function Home(){
     const [userEmailID, setUserEmailID] = useState("")
     const [interactionID, setInteractionID] = useState("")
     const [userEmailVisible, setUserEmailVisible] = useState(false)
+    const [queueVisible, setQueueVisible] = useState(false)
+    const [userListVisible, setUserListVisible] = useState(false)
+    const [taskComplete, setTaskComplete] = useState("")
     //const [participantID, setParticipantID] = useState("")
     //const [queueID, setQueueID] = useState("")
     //const [userID, setUserID] = useState("")
@@ -44,10 +47,10 @@ export function Home(){
         if(radioValue === 'transferSameQueue'){
             await replaceInteraction(participantID, queueID, interactionID, "")
             .then((data:any)=>{
-                console.log(data)
+                setTaskComplete(data)
             })
             .catch((err:any)=>{
-                console.log(err)
+                setTaskComplete(err)
             })
         }
         else if(radioValue === 'transferUser'){
@@ -57,30 +60,56 @@ export function Home(){
                 console.log(data)
                 await replaceInteraction(participantID,"",interactionID, userID)
                 .then((data:any)=>{
-                    console.log(data)
+                    setTaskComplete(data)
                 })
                 .catch((err:any)=>{
-                    console.log(err)
+                    setTaskComplete(err)
                 })
             })
+        }
+        else if(radioValue === 'transferAnotherQueueUser'){
+            console.log("hello")
         }
         
     }
     return(
         <div>
             <h1>Genesys Cloud</h1>
-            <p>Interaction Pull Away</p>
+            <p>Pull Away Interaction From Connected Agent</p>
             <label htmlFor='interactionID'>Interaction ID: </label>
             <input type={'text'} id="interactionID" name='interactionID' onChange={getInteractionID}></input><br></br><br></br>
-            <input type={'radio'} id='transferSameQueue' value='transferSameQueue' name='optionType' onClick={(e) => setUserEmailVisible(false)} onChange={(e) => setRadioValue(e.target.value)}></input>
+            <input type={'radio'} id='transferSameQueue' value='transferSameQueue' name='optionType' onClick={(e) => {
+                setUserEmailVisible(false)
+                setQueueVisible(false)
+                setUserListVisible(false)}} onChange={(e) => setRadioValue(e.target.value)}></input>
             <label htmlFor='transferSameQueue'>Transfer to Same Queue</label><br></br><br></br>
-            <input type={'radio'} id='transferUser' value='transferUser' name='optionType' onClick={() => setUserEmailVisible(true)} onChange={(e) => setRadioValue(e.target.value)}></input>
+            <input type={'radio'} id='transferAnotherQueueUser' value='transferAnotherQueueUser' name='optionType' onChange={(e) => setRadioValue(e.target.value)} onClick={() => {
+                setQueueVisible(true)
+                setUserListVisible(true)
+                setUserEmailVisible(false)
+            }}></input>
+            <label htmlFor='transferAnotherQueueUser'>Transfer to User of Another Queue</label><br></br><br></br>
+            <input type={'radio'} id='transferUser' value='transferUser' name='optionType' onClick={() => {
+                setUserEmailVisible(true)
+                setQueueVisible(false)
+                setUserListVisible(false)}} onChange={(e) => setRadioValue(e.target.value)}></input>
             <label htmlFor='transferUser'>Transfer to Agent</label><br></br><br></br>
+            {queueVisible ? <div>
+                <label htmlFor='queueName'>Queue Name: </label>
+                <input type={'text'} id='queueName' name='queueName'></input><br></br><br></br>
+            </div>:null}
+            {userListVisible ? <div>
+                <label htmlFor='userList'>User List: </label>
+                <select>
+                    <option>Select</option>
+                </select><br></br><br></br>
+            </div>:null}
             {userEmailVisible ? <div> 
                 <label htmlFor='userEmail'>Agent Email ID: </label>
                 <input type={'text'} id='userEmail' name='userEmail' onChange={getEmailID}></input><br></br><br></br>
             </div>:null}
-            <button onClick={getPariticipantData}>Submit</button>
+            <button onClick={getPariticipantData}>Submit</button><br></br>
+            <p>{taskComplete}</p>
         </div>
     )
 }
