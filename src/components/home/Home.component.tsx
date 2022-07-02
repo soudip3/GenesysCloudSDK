@@ -8,7 +8,6 @@ import {
   } from '../utils/genesysCloudUtils';
 
 export function Home(){
-    
     const [userEmailID, setUserEmailID] = useState("")
     const [interactionID, setInteractionID] = useState("")
     const [userEmailVisible, setUserEmailVisible] = useState(false)
@@ -16,12 +15,17 @@ export function Home(){
     const [userListVisible, setUserListVisible] = useState(false)
     const [taskComplete, setTaskComplete] = useState("")
     const [queueName, setQueueName] = useState("")
+    const [userList, setUserList] = useState([{
+        agentName:'Select',
+        agentID:'Select'
+    }])
     //const [participantID, setParticipantID] = useState("")
     //const [queueID, setQueueID] = useState("")
     //const [userID, setUserID] = useState("")
     const [radioValue, setRadioValue] = useState("")
     useEffect(() => {
-    }, []);
+        
+    },);
 
     const getInteractionID = (event :any)=>{
         setInteractionID(event.target.value)
@@ -33,6 +37,14 @@ export function Home(){
 
     const getQueueName = (event:any)=>{
         setQueueName(event.target.value)
+        setUserList([{
+            agentName:'Select',
+            agentID:'Select'
+        }])
+    }
+
+    async function usersDetails() {
+        console.log(userList)
     }
 
 
@@ -55,7 +67,8 @@ export function Home(){
             const queueID = data
             await getUsersDetails(queueID)
             .then((data:any)=>{
-                console.log(data)
+                setUserList(data)
+                
             })
             .catch((err:any)=>{
                 console.log(err)
@@ -105,12 +118,20 @@ export function Home(){
             <input type={'radio'} id='transferSameQueue' value='transferSameQueue' name='optionType' onClick={(e) => {
                 setUserEmailVisible(false)
                 setQueueVisible(false)
-                setUserListVisible(false)}} onChange={(e) => setRadioValue(e.target.value)}></input>
+                setUserListVisible(false)
+                setUserList([{
+                    agentName:'Select',
+                    agentID:'Select'
+                }])}} onChange={(e) => setRadioValue(e.target.value)}></input>
             <label htmlFor='transferSameQueue'>Transfer to Same Queue</label><br></br><br></br>
             <input type={'radio'} id='transferAnotherQueueUser' value='transferAnotherQueueUser' name='optionType' onChange={(e) => setRadioValue(e.target.value)} onClick={() => {
                 setQueueVisible(true)
                 setUserListVisible(true)
                 setUserEmailVisible(false)
+                setUserList([{
+                    agentName:'Select',
+                    agentID:'Select'
+                }])
             }}></input>
             <label htmlFor='transferAnotherQueueUser'>Transfer to User of Another Queue</label><br></br><br></br>
             <input type={'radio'} id='transferUser' value='transferUser' name='optionType' onClick={() => {
@@ -123,10 +144,18 @@ export function Home(){
                 <input type={'text'} id='queueName' name='queueName' onChange={getQueueName}></input><br></br><br></br>
             </div>:null}
             {userListVisible ? <div>
+                {/* <button onClick={usersDetails}>Get User</button><br></br><br></br> */}
                 <label htmlFor='userList'>User List: </label>
                 <select onClick={getUserList}>
-                    <option>Select</option>
-                </select><br></br><br></br>
+                {userList.map((user) =>{
+                    return <option key={user.agentID}>{user.agentName}</option>
+                })}
+                </select><br></br><br></br>      
+                {/* <ul>
+                {userList.map((user) =>{
+                    return <li>{user.agentName}</li>
+                })}
+                </ul>           */}
             </div>:null}
             {userEmailVisible ? <div> 
                 <label htmlFor='userEmail'>Agent Email ID: </label>
@@ -134,6 +163,7 @@ export function Home(){
             </div>:null}
             <button onClick={getPariticipantData}>Submit</button><br></br>
             <p>{taskComplete}</p>
+            
         </div>
     )
 }
