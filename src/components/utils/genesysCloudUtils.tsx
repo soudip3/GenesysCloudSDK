@@ -135,3 +135,18 @@ export function getUsersDetails(queueID:string){
         return err
     })
 }
+
+export function getDivision(){
+    let body = { 
+        "expand": "", // [String] | Which fields, if any, to expand.
+        "integrationPresenceSource": "" // String | Get your presence for a given integration. This parameter will only be used when presence is provided as an expand.
+      };
+    return userAPI.getUsersMe(body)
+    .then((data:any)=>{
+        const divisionID = data.division.id;
+        return divisionID
+    })
+    .catch((err:any)=>{
+        return(err)
+    })
+}

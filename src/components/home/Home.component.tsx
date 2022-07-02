@@ -4,7 +4,8 @@ import {
     replaceInteraction,
     getUserID,
     getQueueID,
-    getUsersDetails
+    getUsersDetails,
+    getDivision
   } from '../utils/genesysCloudUtils';
 
 export function Home(){
@@ -35,8 +36,18 @@ export function Home(){
     }])
     const [initialQueueID, setInitialQueueID] = useState("")
     useEffect(() => {
-        
+        getDivisionDetails()
     },);
+
+    const getDivisionDetails = async ()=>{
+        await getDivision()
+        .then((data:any)=>{
+            console.log(data)
+        })
+        .catch((err:any)=>{
+            console.log(err)
+        })
+    }    
 
     const getInteractionID = (event :any)=>{
         setInteractionID(event.target.value)
