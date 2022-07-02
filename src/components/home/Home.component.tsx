@@ -33,6 +33,7 @@ export function Home(){
         agentName:'Select',
         agentID:'Select'
     }])
+    const [initialQueueID, setInitialQueueID] = useState("")
     useEffect(() => {
         
     },);
@@ -45,6 +46,8 @@ export function Home(){
         setTransferSameQueue(false)
         setTransferSameQueueUser(false)
         setUserListVisible(false)
+        setQueueVisible(false)
+        setUserEmailVisible(false)
         setUserList([{
             agentName:'Select',
             agentID:'Select'
@@ -94,6 +97,7 @@ export function Home(){
         .then(async(data:any)=>{
             setParticipantID(data.participantID)
             setQueueID(data.queueID)
+            setInitialQueueID(data.queueID)
             await getUsersDetails(data.queueID)
             .then((data:any)=>{
                 setUserList(data)
@@ -155,6 +159,7 @@ export function Home(){
                     setTaskComplete(data)
                     setInteractionID("")
                     setTrasferUser(false)
+                    setUserEmailVisible(false)
                 })
                 .catch((err:any)=>{
                     setTaskComplete(err)
@@ -167,6 +172,8 @@ export function Home(){
                 setTaskComplete(data)
                 setInteractionID("")
                 setTransferAnotherQueueUser(false)
+                setQueueVisible(false)
+                setUserListVisible(false)
             })
             .catch((err:any)=>{
                 setTaskComplete(err)
@@ -183,13 +190,24 @@ export function Home(){
                 setInteractionID("")
                 setQueueName("")
                 setTransferAnotherQueue(false)
+                setQueueVisible(false)
             })
             .catch((err:any)=>{
                 setTaskComplete(err)
             })
         }
         else if(radioValue === 'transferSameQueueUser'){
-            console.log(userList)
+            await replaceInteraction(participantID,initialQueueID,interactionID, userID)
+            .then((data:any)=>{
+                setTaskComplete(data)
+                setInteractionID("")
+                setQueueName("")
+                setTransferSameQueueUser(false)
+                setUserListVisible(false)
+            })
+            .catch((err:any)=>{
+                setTaskComplete(err)
+            })
         }
         
     }
