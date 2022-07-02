@@ -148,6 +148,9 @@ export function Home(){
             .catch((err:any)=>{
                 setTaskComplete(err)
             })
+            setTimeout(()=>{
+                setTaskComplete("")
+            },5000)
         }
         else if(radioValue === 'transferUser'){
             await getUserID(userEmailID)
