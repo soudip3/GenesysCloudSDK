@@ -1,23 +1,23 @@
-import { clientConfig } from '../../config';
+//import { clientConfig } from '../../config';
 const platformClient = require('purecloud-platform-client-v2/dist/node/purecloud-platform-client-v2.js');
 const jp = require('jsonpath')
 
 const conversationAPI = new platformClient.ConversationsApi()
 const userAPI = new platformClient.UsersApi()
 const routingAPI = new platformClient.RoutingApi()
-const client = platformClient.ApiClient.instance;
-const { clientId, redirectUri } = clientConfig;
+// const client = platformClient.ApiClient.instance;
+// const { clientId, redirectUri } = clientConfig;
 
 
-export function authenticate() {
-    return client.loginImplicitGrant(clientId, redirectUri, { state: 'state' })
-        .then((data: any) => {
-            return data;
-        })
-        .catch((err: any) => {
-            console.error(err);
-        });
-}
+// export function authenticate() {
+//     return client.loginImplicitGrant(clientId, redirectUri, { state: 'state' })
+//         .then((data: any) => {
+//             return data;
+//         })
+//         .catch((err: any) => {
+//             console.error(err);
+//         });
+// }
 
 export function getParticipantID(interactionID : string){
     return conversationAPI.getAnalyticsConversationDetails(interactionID)
