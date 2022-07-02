@@ -20,17 +20,39 @@ export function Home(){
         agentID:'Select'
     }])
     const [userID, setUserID] = useState("")
-    const [userName, setUserName] = useState("")
+    //const [userName, setUserName] = useState("")
     const [participantID, setParticipantID] = useState("")
     const [queueID, setQueueID] = useState("")
     const [radioValue, setRadioValue] = useState("")
     const [transferSameQueue, setTransferSameQueue] = useState(false)
+    const [transferUser, setTrasferUser] = useState(false)
+    const [transferAnotherQueue, setTransferAnotherQueue] = useState(false)
+    const [transferAnotherQueueUser, setTransferAnotherQueueUser] = useState(false)
+    const [transferSameQueueUser, setTransferSameQueueUser] = useState(false)
+    const [initialUserList, setInitialUserList] = useState([{
+        agentName:'Select',
+        agentID:'Select'
+    }])
     useEffect(() => {
         
     },);
 
     const getInteractionID = (event :any)=>{
         setInteractionID(event.target.value)
+        setTransferAnotherQueue(false)
+        setTransferAnotherQueueUser(false)
+        setTrasferUser(false)
+        setTransferSameQueue(false)
+        setTransferSameQueueUser(false)
+        setUserListVisible(false)
+        setUserList([{
+            agentName:'Select',
+            agentID:'Select'
+        }])
+        setInitialUserList([{
+            agentName:'Select',
+            agentID:'Select'
+        }])
     }
 
     const getEmailID = (event :any)=>{
@@ -53,13 +75,33 @@ export function Home(){
     // async function usersDetails() {
     //     console.log(userList)
     // }
+    // async function vartransferSameQueueUser() {
+    //     setTransferSameQueueUser(true)
+    //     setUserEmailVisible(false)
+    //     setTransferSameQueue(false)
+    //     setTransferAnotherQueueUser(false)
+    //     setTransferAnotherQueue(false)
+    //     setTrasferUser(false)
+    //     setQueueVisible(false)
+    //     setUserListVisible(false)
+        
+    //     //getUserListSameQueue()
+    // }
 
 
     async function getPariticipantData() {
         await getParticipantID(interactionID)
-        .then((data:any)=>{
+        .then(async(data:any)=>{
             setParticipantID(data.participantID)
             setQueueID(data.queueID)
+            await getUsersDetails(data.queueID)
+            .then((data:any)=>{
+                setUserList(data)
+                setInitialUserList(data)
+            })
+            .catch((err:any)=>{
+                console.log(err)
+            })
             //console.log(radioValue)
             //replaceInteractionData()
         })
@@ -69,25 +111,26 @@ export function Home(){
       }
     
     async function getUserList() {
-        await getQueueID(queueName)
-        .then(async (data:any)=>{
-            const queueID = data
-            console.log(queueID)
-            setQueueID(queueID)
-            if(radioValue !== 'transferAnotherQueue'){
-                await getUsersDetails(queueID)
-                .then((data:any)=>{
-                    setUserList(data)
-                })
-                .catch((err:any)=>{
-                    console.log(err)
-                })
-            }
-        })
-        .catch((err:any)=>{
-            console.log(err)
-        })
-    }
+            await getQueueID(queueName)
+            .then(async (data:any)=>{
+                const queueID = data
+                console.log(queueID)
+                setQueueID(queueID)
+                if(radioValue !== 'transferAnotherQueue'){
+                    await getUsersDetails(queueID)
+                    .then((data:any)=>{
+                        setUserList(data)
+                    })
+                    .catch((err:any)=>{
+                        console.log(err)
+                    })
+                }
+            })
+            .catch((err:any)=>{
+                console.log(err)
+            })
+        }
+    
     
     async function replaceInteractionData(){
         //console.log(1)
@@ -110,6 +153,8 @@ export function Home(){
                 await replaceInteraction(participantID,"",interactionID, userID)
                 .then((data:any)=>{
                     setTaskComplete(data)
+                    setInteractionID("")
+                    setTrasferUser(false)
                 })
                 .catch((err:any)=>{
                     setTaskComplete(err)
@@ -120,6 +165,8 @@ export function Home(){
             await replaceInteraction(participantID,queueID,interactionID, userID)
             .then((data:any)=>{
                 setTaskComplete(data)
+                setInteractionID("")
+                setTransferAnotherQueueUser(false)
             })
             .catch((err:any)=>{
                 setTaskComplete(err)
@@ -135,10 +182,14 @@ export function Home(){
                 setTaskComplete(data)
                 setInteractionID("")
                 setQueueName("")
+                setTransferAnotherQueue(false)
             })
             .catch((err:any)=>{
                 setTaskComplete(err)
             })
+        }
+        else if(radioValue === 'transferSameQueueUser'){
+            console.log(userList)
         }
         
     }
@@ -151,6 +202,10 @@ export function Home(){
             <input type={'radio'} id='transferSameQueue' value='transferSameQueue' checked={transferSameQueue} name='optionType' onClick={(e) => {
                 setUserEmailVisible(false)
                 setTransferSameQueue(true)
+                setTransferAnotherQueueUser(false)
+                setTransferAnotherQueue(false)
+                setTrasferUser(false)
+                setTransferSameQueueUser(false)
                 setQueueVisible(false)
                 setUserListVisible(false)
                 setUserList([{
@@ -158,19 +213,43 @@ export function Home(){
                     agentID:'Select'
                 }])}} onChange={(e) => setRadioValue(e.target.value)}></input>
             <label htmlFor='transferSameQueue'>Transfer to Same Queue</label><br></br><br></br>
-            <input type={'radio'} id='transferAnotherQueue' value='transferAnotherQueue' name='optionType' onChange={(e) => setRadioValue(e.target.value)} onClick={ () =>{
+            <input type={'radio'} id='transferSameQueueUser' value='transferSameQueueUser' checked={transferSameQueueUser} name='optionType' onChange={(e) => setRadioValue(e.target.value)} onClick={(e)=>{
+                setTransferSameQueueUser(true)
+                setUserEmailVisible(false)
+                setTransferSameQueue(false)
+                setTransferAnotherQueueUser(false)
+                setTransferAnotherQueue(false)
+                setTrasferUser(false)
+                setQueueVisible(false)
+                setUserListVisible(true)
+                setUserList(initialUserList)
+            }}></input>
+            <label htmlFor='transferSameQueueUser'>Transfer to User of Same Queue</label><br></br><br></br>
+            <input type={'radio'} id='transferAnotherQueue' value='transferAnotherQueue' checked={transferAnotherQueue} name='optionType' onChange={(e) => setRadioValue(e.target.value)} onClick={ () =>{
                 setQueueVisible(true)
+                setTransferSameQueueUser(false)
                 setUserListVisible(false)
                 setUserEmailVisible(false)
+                setTransferAnotherQueue(true)
+                setTransferSameQueue(false)
+                setTrasferUser(false)
+                setQueueName("")
+                setTransferAnotherQueueUser(false)
                 setUserList([{
                     agentName:'Select',
                     agentID:'Select'
                 }])
             }}></input>
             <label htmlFor='transferAnotherQueue'>Transfer to Another Queue</label><br></br><br></br>
-            <input type={'radio'} id='transferAnotherQueueUser' value='transferAnotherQueueUser' name='optionType' onChange={(e) => setRadioValue(e.target.value)} onClick={() => {
+            <input type={'radio'} id='transferAnotherQueueUser' value='transferAnotherQueueUser' checked={transferAnotherQueueUser} name='optionType' onChange={(e) => setRadioValue(e.target.value)} onClick={() => {
                 setQueueVisible(true)
+                setTransferAnotherQueueUser(true)
+                setTransferSameQueueUser(false)
+                setTransferAnotherQueue(false)
+                setTransferSameQueue(false)
+                setTrasferUser(false)
                 setUserListVisible(true)
+                setQueueName("")
                 setUserEmailVisible(false)
                 setUserList([{
                     agentName:'Select',
@@ -178,8 +257,13 @@ export function Home(){
                 }])
             }}></input>
             <label htmlFor='transferAnotherQueueUser'>Transfer to User of Another Queue</label><br></br><br></br>
-            <input type={'radio'} id='transferUser' value='transferUser' name='optionType' onClick={() => {
+            <input type={'radio'} id='transferUser' value='transferUser' checked={transferUser} name='optionType' onClick={() => {
                 setUserEmailVisible(true)
+                setTrasferUser(true)
+                setTransferSameQueue(false)
+                setTransferSameQueueUser(false)
+                setTransferAnotherQueue(false)
+                setTransferAnotherQueueUser(false)
                 setQueueVisible(false)
                 setUserListVisible(false)}} onChange={(e) => setRadioValue(e.target.value)}></input>
             <label htmlFor='transferUser'>Transfer to Agent</label><br></br><br></br>
