@@ -19,6 +19,8 @@ export function Home(){
         agentName:'Select',
         agentID:'Select'
     }])
+    const [userID, setUserID] = useState("")
+    const [userName, setUserName] = useState("")
     //const [participantID, setParticipantID] = useState("")
     //const [queueID, setQueueID] = useState("")
     //const [userID, setUserID] = useState("")
@@ -35,6 +37,11 @@ export function Home(){
         setUserEmailID(event.target.value)
     }
 
+    const getUsers = (event: any)=>{
+        console.log(event.target.value)
+        setUserID(event.target.value)
+    }
+
     const getQueueName = (event:any)=>{
         setQueueName(event.target.value)
         setUserList([{
@@ -43,9 +50,9 @@ export function Home(){
         }])
     }
 
-    async function usersDetails() {
-        console.log(userList)
-    }
+    // async function usersDetails() {
+    //     console.log(userList)
+    // }
 
 
     async function getPariticipantData() {
@@ -68,7 +75,6 @@ export function Home(){
             await getUsersDetails(queueID)
             .then((data:any)=>{
                 setUserList(data)
-                
             })
             .catch((err:any)=>{
                 console.log(err)
@@ -105,7 +111,17 @@ export function Home(){
             })
         }
         else if(radioValue === 'transferAnotherQueueUser'){
-            console.log("hello")
+            console.log(userID)
+            console.log(participantID)
+            console.log(interactionID)
+            console.log(queueID)
+            await replaceInteraction(participantID,queueID,interactionID, userID)
+            .then((data:any)=>{
+                setTaskComplete(data)
+            })
+            .catch((err:any)=>{
+                setTaskComplete(err)
+            })
         }
         
     }
@@ -141,14 +157,14 @@ export function Home(){
             <label htmlFor='transferUser'>Transfer to Agent</label><br></br><br></br>
             {queueVisible ? <div>
                 <label htmlFor='queueName'>Queue Name: </label>
-                <input type={'text'} id='queueName' name='queueName' onChange={getQueueName}></input><br></br><br></br>
+                <input type={'text'} id='queueName' name='queueName' onChange={getQueueName} onBlur={getUserList}></input><br></br><br></br>
             </div>:null}
             {userListVisible ? <div>
                 {/* <button onClick={usersDetails}>Get User</button><br></br><br></br> */}
                 <label htmlFor='userList'>User List: </label>
-                <select onClick={getUserList}>
+                <select onBlur={getUsers}>
                 {userList.map((user) =>{
-                    return <option key={user.agentID}>{user.agentName}</option>
+                    return <option value={user.agentID}>{user.agentName}</option>
                 })}
                 </select><br></br><br></br>      
                 {/* <ul>

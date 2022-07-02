@@ -93,7 +93,12 @@ export function getQueueID(queueName:string){
       };
     return routingAPI.getRoutingQueues(body)
     .then((data:any)=>{
-        return data.entities[0].id
+        try{
+            return data.entities[0].id
+        }
+        catch(e){
+            console.log(e)
+        }
     })
     .catch((err:any)=>{
         return err
