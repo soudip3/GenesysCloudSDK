@@ -115,6 +115,7 @@ export function Home(){
       }
     
     async function getUserList() {
+        if(queueName !==""){
             await getQueueID(queueName)
             .then(async (data:any)=>{
                 const queueID = data
@@ -134,6 +135,7 @@ export function Home(){
                 console.log(err)
             })
         }
+    }
     
     
     async function replaceInteractionData(){
