@@ -21,10 +21,10 @@ export function Home(){
     }])
     const [userID, setUserID] = useState("")
     const [userName, setUserName] = useState("")
-    //const [participantID, setParticipantID] = useState("")
-    //const [queueID, setQueueID] = useState("")
-    //const [userID, setUserID] = useState("")
+    const [participantID, setParticipantID] = useState("")
+    const [queueID, setQueueID] = useState("")
     const [radioValue, setRadioValue] = useState("")
+    const [transferSameQueue, setTransferSameQueue] = useState(false)
     useEffect(() => {
         
     },);
@@ -58,10 +58,10 @@ export function Home(){
     async function getPariticipantData() {
         await getParticipantID(interactionID)
         .then((data:any)=>{
-            //setParticipantID(data.participantID)
-            //setQueueID(data.queueID)
+            setParticipantID(data.participantID)
+            setQueueID(data.queueID)
             //console.log(radioValue)
-            replaceInteractionData(data.participantID, data.queueID)
+            //replaceInteractionData()
         })
         .catch((err:any)=>{
                 console.log(err)
@@ -72,25 +72,31 @@ export function Home(){
         await getQueueID(queueName)
         .then(async (data:any)=>{
             const queueID = data
-            await getUsersDetails(queueID)
-            .then((data:any)=>{
-                setUserList(data)
-            })
-            .catch((err:any)=>{
-                console.log(err)
-            })
+            console.log(queueID)
+            setQueueID(queueID)
+            if(radioValue !== 'transferAnotherQueue'){
+                await getUsersDetails(queueID)
+                .then((data:any)=>{
+                    setUserList(data)
+                })
+                .catch((err:any)=>{
+                    console.log(err)
+                })
+            }
         })
         .catch((err:any)=>{
             console.log(err)
         })
     }
     
-    async function replaceInteractionData(participantID:string, queueID:string){
+    async function replaceInteractionData(){
         //console.log(1)
         if(radioValue === 'transferSameQueue'){
             await replaceInteraction(participantID, queueID, interactionID, "")
             .then((data:any)=>{
                 setTaskComplete(data)
+                setInteractionID("")
+                setTransferSameQueue(false)
             })
             .catch((err:any)=>{
                 setTaskComplete(err)
@@ -111,13 +117,24 @@ export function Home(){
             })
         }
         else if(radioValue === 'transferAnotherQueueUser'){
-            console.log(userID)
-            console.log(participantID)
-            console.log(interactionID)
-            console.log(queueID)
             await replaceInteraction(participantID,queueID,interactionID, userID)
             .then((data:any)=>{
                 setTaskComplete(data)
+            })
+            .catch((err:any)=>{
+                setTaskComplete(err)
+            })
+        }
+        else if(radioValue === 'transferAnotherQueue'){
+            console.log("hello")
+            console.log(participantID)
+            console.log(interactionID)
+            console.log(queueID)
+            await replaceInteraction(participantID,queueID,interactionID, "")
+            .then((data:any)=>{
+                setTaskComplete(data)
+                setInteractionID("")
+                setQueueName("")
             })
             .catch((err:any)=>{
                 setTaskComplete(err)
@@ -130,9 +147,10 @@ export function Home(){
             <h1>Genesys Cloud</h1>
             <p>Pull Away Interaction From Connected Agent</p>
             <label htmlFor='interactionID'>Interaction ID: </label>
-            <input type={'text'} id="interactionID" name='interactionID' onChange={getInteractionID}></input><br></br><br></br>
-            <input type={'radio'} id='transferSameQueue' value='transferSameQueue' name='optionType' onClick={(e) => {
+            <input type={'text'} id="interactionID" name='interactionID' onChange={getInteractionID} onBlur={getPariticipantData} value={interactionID}></input><br></br><br></br>
+            <input type={'radio'} id='transferSameQueue' value='transferSameQueue' checked={transferSameQueue} name='optionType' onClick={(e) => {
                 setUserEmailVisible(false)
+                setTransferSameQueue(true)
                 setQueueVisible(false)
                 setUserListVisible(false)
                 setUserList([{
@@ -140,6 +158,16 @@ export function Home(){
                     agentID:'Select'
                 }])}} onChange={(e) => setRadioValue(e.target.value)}></input>
             <label htmlFor='transferSameQueue'>Transfer to Same Queue</label><br></br><br></br>
+            <input type={'radio'} id='transferAnotherQueue' value='transferAnotherQueue' name='optionType' onChange={(e) => setRadioValue(e.target.value)} onClick={ () =>{
+                setQueueVisible(true)
+                setUserListVisible(false)
+                setUserEmailVisible(false)
+                setUserList([{
+                    agentName:'Select',
+                    agentID:'Select'
+                }])
+            }}></input>
+            <label htmlFor='transferAnotherQueue'>Transfer to Another Queue</label><br></br><br></br>
             <input type={'radio'} id='transferAnotherQueueUser' value='transferAnotherQueueUser' name='optionType' onChange={(e) => setRadioValue(e.target.value)} onClick={() => {
                 setQueueVisible(true)
                 setUserListVisible(true)
@@ -157,14 +185,14 @@ export function Home(){
             <label htmlFor='transferUser'>Transfer to Agent</label><br></br><br></br>
             {queueVisible ? <div>
                 <label htmlFor='queueName'>Queue Name: </label>
-                <input type={'text'} id='queueName' name='queueName' onChange={getQueueName} onBlur={getUserList}></input><br></br><br></br>
+                <input type={'text'} id='queueName' name='queueName' onChange={getQueueName} onBlur={getUserList} value={queueName}></input><br></br><br></br>
             </div>:null}
             {userListVisible ? <div>
                 {/* <button onClick={usersDetails}>Get User</button><br></br><br></br> */}
                 <label htmlFor='userList'>User List: </label>
                 <select onBlur={getUsers}>
                 {userList.map((user) =>{
-                    return <option value={user.agentID}>{user.agentName}</option>
+                    return <option value={user.agentID} key={user.agentID}>{user.agentName}</option>
                 })}
                 </select><br></br><br></br>      
                 {/* <ul>
@@ -177,7 +205,7 @@ export function Home(){
                 <label htmlFor='userEmail'>Agent Email ID: </label>
                 <input type={'text'} id='userEmail' name='userEmail' onChange={getEmailID}></input><br></br><br></br>
             </div>:null}
-            <button onClick={getPariticipantData}>Submit</button><br></br>
+            <button onClick={replaceInteractionData}>Submit</button><br></br>
             <p>{taskComplete}</p>
             
         </div>

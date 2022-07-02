@@ -36,6 +36,7 @@ export function getParticipantID(interactionID : string){
             participantID: participantID,
             queueID: queueID
         }
+        console.log(value)
         return value
     })
     .catch((err:any)=>{
