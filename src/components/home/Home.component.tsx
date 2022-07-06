@@ -230,7 +230,7 @@ export function Home(){
     return(
         <div>
             <h1>Genesys Cloud</h1>
-            <p>Pull Away Interaction From Connected Agent</p>
+            <p>Pull Away Interaction From Connected Agent - </p>
             <label htmlFor='interactionID'>Interaction ID: </label>
             <input type={'text'} id="interactionID" name='interactionID' onChange={getInteractionID} onBlur={getPariticipantData} value={interactionID}></input><br></br><br></br>
             <input type={'radio'} id='transferSameQueue' value='transferSameQueue' checked={transferSameQueue} name='optionType' onClick={(e) => {
